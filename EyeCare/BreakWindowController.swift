@@ -107,11 +107,26 @@ class BreakWindowController: NSWindowController {
             context.duration = 0.3
             window.animator().alphaValue = 0.0
         }) { [weak self] in
+            guard let self = self else { return }
+
             window.orderOut(nil)
-            NSApp.presentationOptions = []
+            NSApp.presentationOptions = [] // Restore normal app behavior
             ProcessInfo.processInfo.enableSuddenTermination()
             ProcessInfo.processInfo.enableAutomaticTermination("Break ended")
-            self?.overlayView = nil
+
+            // **BUG FIX: Attempt to restore focus to the previous application (corrected)**
+            if let bundleID = self.previousAppBundleID,
+               bundleID != Bundle.main.bundleIdentifier { // Don't try to re-activate self if it was frontmost
+                let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+                if let appToActivate = apps.first {
+                    // Use .activateAllWindows or an empty set []
+                    // .activateAllWindows is generally a good default to bring the app forward.
+                    appToActivate.activate(options: [.activateAllWindows])
+                }
+            }
+            self.previousAppBundleID = nil // Clear it after use
+
+            self.overlayView = nil
         }
     }
 }

@@ -203,7 +203,7 @@ struct SettingsView: View {
                                 breakSecondsPrev = String(sec)
                                 breakSecondsError = false
                             }) {
-                                Text(sec < 60 ? "\(sec) sec" : "1 min")
+                                Text("\(sec) sec")
                                     .font(.caption)
                                     .padding(.vertical, 6)
                                     .padding(.horizontal, 12)
